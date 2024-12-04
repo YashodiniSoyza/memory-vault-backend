@@ -14,3 +14,7 @@ pyarrow
 apscheduler
 cryptography~=43.0.3
 PyJWT~=2.10.1
+tf-keras
+tensorflow
+transformers~=4.46.3
+spacy~=3.8.2
