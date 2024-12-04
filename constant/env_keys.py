@@ -6,3 +6,4 @@ class EnvKeys(Enum):
     DATABASE_NAME = "DATABASE_NAME"
     PROFILE = "PROFILE"
     PORT = "PORT"
+    OPENAI_API_KEY = "OPENAI_API_KEY_NEW"
