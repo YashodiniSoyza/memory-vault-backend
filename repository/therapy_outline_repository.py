@@ -18,3 +18,8 @@ class TherapyOutlineRepository(BaseRepository):
             return TherapyOutline(**result)
         else:
             return None
+
+    def update_therapy_outline_by_id(self, therapy_outline_id: str, therapy_outline: TherapyOutline) -> int:
+        updated_data = therapy_outline.model_dump(by_alias=True)
+        updated_data.pop("_id")
+        return self.update({"_id": ObjectId(therapy_outline_id)}, updated_data)

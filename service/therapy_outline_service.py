@@ -6,7 +6,7 @@ from constant import EnvKeys
 from helper import Logger
 from repository import TherapyOutlineRepository
 from service import MemoryService, PatientService
-from model import TherapyOutline, Step, StepType
+from model import TherapyOutline, Step
 from openai import OpenAI
 
 load_dotenv()
@@ -98,7 +98,11 @@ class TherapyOutlineService:
               "description": "string",
               "guide": ["string", "..."],
               "type": "string (INTRODUCTION, NORMAL, CONCLUSION)",
-              "media_urls": ["string", "..."]
+              "media_urls": ["string", "..."],
+              "script": {{
+                "voice": "string (alloy, echo, fable, onyx, nova, shimmer)",
+                "text": "string"
+              }}
             }}
           ]
         }}
@@ -114,9 +118,12 @@ class TherapyOutlineService:
         - Include associated media URLs for each step where applicable.
         - Follow a logical structure: introduction, main session, conclusion.
         - Provide guidance points for each step in the `guide` field.
-        - Ensure the JSON format matches the provided structure. 
-        - Give the output in json format in a way that it can be parsed. 
-        - Do not include any extra formatting or code block markers.
+        - Each step should include a script with:
+          - A calm, relaxing, and therapist-like tone.
+          - Simple and empathetic language to guide reflective thinking and encourage memories.
+        - Choose one consistent voice for all steps from the following options: alloy, echo, fable, onyx, nova, shimmer.
+        - Ensure the JSON format matches the provided structure.
+        - Provide the output as a valid JSON object without any extra formatting or code block markers.
         """
 
     @staticmethod
@@ -128,6 +135,6 @@ class TherapyOutlineService:
             raise ValueError(f"Invalid JSON output from OpenAI: {e}")
 
 
-if __name__ == '__main__':
-    service = TherapyOutlineService()
-    print(service.generate_and_save_therapy_outline("6750373dae22fe6413d7e324"))
+# if __name__ == '__main__':
+#     service = TherapyOutlineService()
+#     print(service.generate_and_save_therapy_outline("6750373dae22fe6413d7e324"))

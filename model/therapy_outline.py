@@ -1,5 +1,5 @@
 from enum import Enum
-from typing import List
+from typing import List, Literal, Optional
 
 from pydantic import BaseModel
 
@@ -12,12 +12,19 @@ class StepType(Enum):
     CONCLUSION = "CONCLUSION"
 
 
+class Script(BaseModel):
+    voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"]
+    text: str
+
+
 class Step(BaseModel):
     step: int
     description: str
     guide: List[str]
     type: StepType
     media_urls: List[str]
+    script: Script
+    audio_url: Optional[str] = None
 
     class Config:
         use_enum_values = True

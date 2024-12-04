@@ -237,10 +237,10 @@ class MediaDescriptionAnalysisService:
     def _filter_tags(self, tags: List[str]) -> List[str]:
         filtered_tags = []
         for tag in tags:
-            tag = tag.lower().strip()  # Convert to lowercase and strip whitespace
-            tag = tag.replace("'s", "")  # Normalize possessive forms
-            tag = tag.replace("’s", "")  # Handle special characters for possessive
-            if tag not in self.stop_words and len(tag) > 1:  # Exclude stop words and short tags
+            tag = tag.lower().strip()
+            tag = tag.replace("'s", "")
+            tag = tag.replace("’s", "")
+            if tag not in self.stop_words and len(tag) > 1:
                 filtered_tags.append(tag)
         return filtered_tags
 
