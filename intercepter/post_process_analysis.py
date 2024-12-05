@@ -23,7 +23,7 @@ def post_process_analysis():
 
     def _analyze_memories(patient_id):
         try:
-            from service import MediaDescriptionAnalysisService
+            from service.media_description_analysis_service import MediaDescriptionAnalysisService
             analysis_service = MediaDescriptionAnalysisService()
             analysis_service.analyze_memories_by_patient_id(patient_id=patient_id)
         except Exception as e:

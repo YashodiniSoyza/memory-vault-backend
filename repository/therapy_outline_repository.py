@@ -23,3 +23,10 @@ class TherapyOutlineRepository(BaseRepository):
         updated_data = therapy_outline.model_dump(by_alias=True)
         updated_data.pop("_id")
         return self.update({"_id": ObjectId(therapy_outline_id)}, updated_data)
+
+    def get_therapy_outline_by_memory_id(self, memory_id: str) -> TherapyOutline:
+        result = self.get_one_by_field("memory_id", memory_id)
+        if result:
+            return TherapyOutline(**result)
+        else:
+            return None

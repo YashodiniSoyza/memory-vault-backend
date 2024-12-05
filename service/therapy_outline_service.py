@@ -22,6 +22,9 @@ class TherapyOutlineService:
         )
         self.logger = Logger(__name__)
 
+    def get_therapy_outline_by_memory_id(self, memory_id: str) -> TherapyOutline:
+        return self.therapy_outline_repository.get_therapy_outline_by_memory_id(memory_id)
+
     def generate_and_save_therapy_outline(self, memory_id: str) -> str:
         self.logger.info("Generating therapy outline for memory: %s", memory_id)
         # Fetch memory details

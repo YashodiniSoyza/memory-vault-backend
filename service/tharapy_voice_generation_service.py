@@ -43,7 +43,7 @@ class TherapyGenerationService:
             audio_url = audio_directory / f"{therapy_outline_id}_{step.step}.mp3"
             response = self._generate_voice(step.script.voice, step.script.text)
             response.stream_to_file(audio_url)
-            step.audio_url = audio_url
+            step.audio_url = audio_url.name
             self.logger.info(f"Voice generated for step {step.step}")
 
         self.logger.info(f"Updating therapy outline with generated audio: {therapy_outline_id}")
