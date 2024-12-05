@@ -48,19 +48,6 @@ class PlayTherapyWindow:
         self.image_canvas = tk.Canvas(self.window, width=500, height=300, bg="gray")
         self.image_canvas.pack(pady=10)
 
-        # Camera Feed and Emotion Display
-        self.camera_frame = ttk.Frame(self.window)
-        self.camera_frame.pack(pady=10)
-
-        self.camera_label = ttk.Label(self.camera_frame)
-        self.camera_label.grid(row=0, column=0, padx=10)
-
-        self.emotion_label = ttk.Label(self.camera_frame, text="Emotion: ", font=("Arial", 14))
-        self.emotion_label.grid(row=0, column=1, padx=10)
-
-        self.emotion_level_label = ttk.Label(self.camera_frame, text="Emotion Level: ", font=("Arial", 12))
-        self.emotion_level_label.grid(row=1, column=0, padx=10, columnspan=2)
-
         # Audio Player Controls
         self.play_button = ttk.Button(self.window, text="Play Audio", command=self.play_audio)
         self.play_button.pack(pady=5)
@@ -74,6 +61,22 @@ class PlayTherapyWindow:
 
         self.next_button = ttk.Button(self.navigation_frame, text="Next", command=self.next_step)
         self.next_button.grid(row=0, column=1, padx=5)
+
+        # Camera Feed and Emotion Display (Positioned in lower-right corner)
+        self.camera_frame = ttk.Frame(self.window)
+        self.camera_frame.pack(side=tk.RIGHT, anchor=tk.SE, padx=20, pady=20)
+
+        # Camera Feed
+        self.camera_label = ttk.Label(self.camera_frame)
+        self.camera_label.pack(pady=5)
+
+        # Emotion Label
+        self.emotion_label = ttk.Label(self.camera_frame, text="Emotion: ", font=("Arial", 14))
+        self.emotion_label.pack(pady=5)
+
+        # Emotion Level Label
+        self.emotion_level_label = ttk.Label(self.camera_frame, text="Emotion Level: ", font=("Arial", 12))
+        self.emotion_level_label.pack(pady=5)
 
         # Load the first step
         self.load_step()
