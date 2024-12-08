@@ -1,9 +1,39 @@
 # Memory Vault - An Interactive Reminiscence Therapy Solution for Dementia Patients
 ## Student Name: W.M.Y. Soysa
 ## Student ID: IT21244698
+---
 
 ## Description
 Memory Vault is a backend application designed to provide interactive reminiscence therapy for dementia patients. The application helps enhance cognitive abilities and emotional well-being through personalized therapy sessions, memory recall exercises, and emotional support, powered by advanced machine learning and AI technologies.
+
+## Technologies Used:
+- **Python**
+- **Flask**
+- **MongoDB**
+- **Transformers**
+- **TensorFlow**
+- **DeepFace**
+- **PyTorch**
+- **OpenAI GPT-4**
+- **OpenAI TTS**
+
+## Solutions Included:
+- **Personalized Therapy Session Generation with Audio Narration**: 
+   The system generates personalized therapy sessions for patients, with calming audio narrations using OpenAI's Text-to-Speech (TTS) models (`tts-1` and `tts-1-hd`).
+   
+- **Memory Analysis and Categorization**: 
+   Analyzes the patient's memories and categorizes them based on themes, emotions, and assigns relevant tags for better understanding and session customization.
+   
+   Models used:
+   - **Zero-Shot Classification**: For theme categorization using the model `facebook/bart-large-mnli`.
+   - **Emotion Analysis**: 
+     - `j-hartmann/emotion-english-distilroberta-base` for emotion recognition.
+     - `monologg/bert-base-cased-goemotions-original` for additional emotion analysis.
+   - **Tag Extraction**: 
+     - SpaCy's `en_core_web_sm` model for extracting relevant tags from memory descriptions.
+
+- **Emotion Analysis During Therapy Sessions**: 
+   Real-time emotion analysis of the patient during a therapy session using facial expression recognition with **DeepFace**. The model used for emotion detection in DeepFace is the `VGG-Face` model.
 
 ---
 
