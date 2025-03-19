@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import Literal
 
 from dotenv import load_dotenv
+from firebase_admin import storage
 from openai._legacy_response import HttpxBinaryResponseContent
 
 from constant import EnvKeys
@@ -13,12 +14,13 @@ from openai import OpenAI
 load_dotenv()
 
 
-class TherapyGenerationService:
+class TherapyVoiceGenerationService:
     def __init__(self):
         self.therapy_outline_repository = TherapyOutlineRepository()
         self.openai = OpenAI(
             api_key=os.getenv(EnvKeys.OPENAI_API_KEY.value),
         )
+        self.storage_bucket = storage.bucket()
         self.logger = Logger(__name__)
 
     def generate_voice_for_therapy_outline(self, therapy_outline_id: str) -> None:
@@ -29,9 +31,9 @@ class TherapyGenerationService:
         if not therapy_outline:
             raise ValueError(f"No therapy outline found with ID: {therapy_outline_id}")
 
-        # Ensure the audio directory exists
-        audio_directory = Path("audio")
-        audio_directory.mkdir(parents=True, exist_ok=True)
+        # # Ensure the audio directory exists
+        # audio_directory = Path("audio")
+        # audio_directory.mkdir(parents=True, exist_ok=True)
 
         # Generate audio for each step
         for step in therapy_outline.steps:
@@ -40,13 +42,24 @@ class TherapyGenerationService:
                 continue
 
             self.logger.info(f"Generating voice for step {step.step}")
-            audio_url = audio_directory / f"{therapy_outline_id}_{step.step}.mp3"
+
+            # generate audio and save to local directory
+            # audio_url = audio_directory / f"{therapy_outline_id}_{step.step}.mp3"
+            # response = self._generate_voice(step.script.voice, step.script.text)
+            # response.stream_to_file(audio_url)
+            # step.audio_url = audio_url.name
+
+            # upload audio to firebase storage
             response = self._generate_voice(step.script.voice, step.script.text)
-            response.stream_to_file(audio_url)
-            step.audio_url = audio_url.name
+            audio_blob = self.storage_bucket.blob(f"audio/{therapy_outline_id}_{step.step}.mp3")
+            audio_blob.upload_from_string(response.content)
+            audio_blob.make_public()
+
+            step.audioUrl = audio_blob.public_url
             self.logger.info(f"Voice generated for step {step.step}")
 
         self.logger.info(f"Updating therapy outline with generated audio: {therapy_outline_id}")
+        therapy_outline.status = "completed"
         self.therapy_outline_repository.update_therapy_outline_by_id(therapy_outline_id, therapy_outline)
 
     def _generate_voice(self, voice: Literal["alloy", "echo", "fable", "onyx", "nova", "shimmer"],
@@ -63,5 +76,5 @@ class TherapyGenerationService:
 
 
 # if __name__ == '__main__':
-#     service = TherapyGenerationService()
+#     service = TherapyVoiceGenerationService()
 #     print(service.generate_voice_for_therapy_outline("67506c4f182bc2cab7cdc3b1"))

@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
 from threading import Thread
-from service import MemoryService, TherapyOutlineService, TherapyGenerationService
+from service import MemoryService, TherapyOutlineService, TherapyVoiceGenerationService
 from play_therapy_window import open_play_therapy_window
 
 
@@ -13,7 +13,7 @@ class TherapyWindow:
 
         self.memory_service = MemoryService()
         self.therapy_outline_service = TherapyOutlineService()
-        self.therapy_generation_service = TherapyGenerationService()
+        self.therapy_voice_generation_service = TherapyVoiceGenerationService()
 
         # Create Therapies Window
         self.create_window()
@@ -131,7 +131,7 @@ class TherapyWindow:
                 self.show_loading_screen()
 
                 # Generate therapy
-                self.therapy_generation_service.generate_voice_for_therapy_outline(therapy_outline.id)
+                self.therapy_voice_generation_service.generate_voice_for_therapy_outline(therapy_outline.id)
 
                 # Close loading screen and refresh
                 self.hide_loading_screen()

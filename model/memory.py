@@ -7,12 +7,12 @@ from model import Audit
 
 
 class MemoryCategory(Enum):
-    FAMILY = "Family"
-    FRIENDS = "Friends"
-    TRAVEL = "Travel"
-    WORK = "Work"
-    ACHIEVEMENTS = "Achievements"
-    OTHER = "Other"
+    FAMILY = "family"
+    FRIENDS = "friends"
+    TRAVEL = "travel"
+    WORK = "work"
+    ACHIEVEMENTS = "achievements"
+    OTHER = "other"
 
 
 class MemoryEmotion(Enum):
@@ -26,10 +26,10 @@ class MemoryEmotion(Enum):
 
 
 class MediaType(Enum):
-    IMAGE = "Image"
-    VIDEO = "Video"
-    AUDIO = "Audio"
-    TEXT = "Text"
+    IMAGE = "image"
+    VIDEO = "video"
+    AUDIO = "audio"
+    TEXT = "text"
 
 
 class Media(BaseModel):
@@ -41,15 +41,16 @@ class Media(BaseModel):
         use_enum_values = True
 
 
-class Memory(Audit):
-    patient_id: str
+class Memory(BaseModel):
+    id: str
+    patientId: str
     title: str
     description: Optional[str] = None
     date: Optional[str] = None
     categories: Optional[List[MemoryCategory]] = None
     emotions: Optional[List[MemoryEmotion]] = None
     media: Optional[List[Media]] = None
-    associated_people: Optional[List[str]] = None
+    associatedPeople: Optional[List[str]] = None
     tags: Optional[List[str]] = None
 
     class Config:

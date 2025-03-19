@@ -20,15 +20,18 @@ class MediaDescriptionAnalysisService:
         self.emotion_classifier = pipeline("text-classification", model="j-hartmann/emotion-english-distilroberta-base")
 
         # New GoEmotions pipeline
-        self.go_emotions_classifier = pipeline("text-classification",
-                                               model="monologg/bert-base-cased-goemotions-original")
+        # self.go_emotions_classifier = pipeline(
+        #     "text-classification",
+        #     model="monologg/bert-base-cased-goemotions-original",
+        #     framework="pt"
+        # )
 
         # Initialize SpaCy for tag extraction
         self.nlp = spacy.load("en_core_web_sm")
         self.stop_words = set(self.nlp.Defaults.stop_words)
 
         # Define the predefined categories
-        self.predefined_categories = ["Family", "Friends", "Travel", "Work", "Achievements", "Other"]
+        self.predefined_categories = ["family", "friends", "travel", "work", "achievements", "other"]
 
     def analyze_memories_by_patient_id(self, patient_id: str) -> None:
         self.logger.info("Analyzing memories for patient ID: %s", patient_id)
@@ -132,57 +135,57 @@ class MediaDescriptionAnalysisService:
 
         return unique_emotions
 
-    def analyze_memories_with_go_emotions(self, memories: List[Memory]) -> None:
-        self.logger.info("Analyzing memories with GoEmotions")
+    # def analyze_memories_with_go_emotions(self, memories: List[Memory]) -> None:
+    #     self.logger.info("Analyzing memories with GoEmotions")
+    #
+    #     for memory in memories:
+    #         try:
+    #             self.logger.info(f"Processing memory with GoEmotions: {memory.title}")
+    #
+    #             # Collect all descriptions: Main + Media
+    #             all_descriptions = self._get_all_descriptions(memory)
+    #
+    #             if not all_descriptions:
+    #                 self.logger.info(f"No descriptions found for memory: {memory.title}")
+    #                 continue
+    #
+    #             # Perform emotion analysis using GoEmotions
+    #             emotions = self._get_emotions_from_descriptions_with_go_emotions(all_descriptions)
+    #             self.logger.info(f"GoEmotions found for memory '{memory.title}': {emotions}")
+    #
+    #             # Update memory emotions (separately tracked for GoEmotions)
+    #             # memory.emotions = emotions
+    #         except Exception as e:
+    #             self.logger.error(f"Error processing memory '{memory.title}' with GoEmotions: {e}")
+    #             continue
+    #
+    #     # Update memories in the database
+    #     self.memory_service.update_memories(memories)
+    #     self.logger.info("GoEmotions analysis completed successfully")
 
-        for memory in memories:
-            try:
-                self.logger.info(f"Processing memory with GoEmotions: {memory.title}")
-
-                # Collect all descriptions: Main + Media
-                all_descriptions = self._get_all_descriptions(memory)
-
-                if not all_descriptions:
-                    self.logger.info(f"No descriptions found for memory: {memory.title}")
-                    continue
-
-                # Perform emotion analysis using GoEmotions
-                emotions = self._get_emotions_from_descriptions_with_go_emotions(all_descriptions)
-                self.logger.info(f"GoEmotions found for memory '{memory.title}': {emotions}")
-
-                # Update memory emotions (separately tracked for GoEmotions)
-                # memory.emotions = emotions
-            except Exception as e:
-                self.logger.error(f"Error processing memory '{memory.title}' with GoEmotions: {e}")
-                continue
-
-        # Update memories in the database
-        self.memory_service.update_memories(memories)
-        self.logger.info("GoEmotions analysis completed successfully")
-
-    def _get_emotions_from_descriptions_with_go_emotions(self, descriptions: List[str]) -> List[str]:
-        emotions = []
-
-        for description in descriptions:
-            # Truncate the description if it exceeds the maximum token limit
-            truncated_description = self._truncate_text(description, tokenizer=self.go_emotions_classifier.tokenizer)
-
-            # Perform emotion analysis on the truncated description
-            try:
-                result = self.go_emotions_classifier(truncated_description)
-                emotions.extend([res["label"] for res in result if res["score"] > 0.5])
-            except Exception as e:
-                self.logger.error(f"Error analyzing description with GoEmotions: {e}")
-                continue
-
-        # Deduplicate emotions
-        unique_emotions = list(set(emotions))
-
-        # Remove 'Neutral' if other emotions are present
-        if "neutral" in unique_emotions and len(unique_emotions) > 1:
-            unique_emotions.remove("neutral")
-
-        return unique_emotions
+    # def _get_emotions_from_descriptions_with_go_emotions(self, descriptions: List[str]) -> List[str]:
+    #     emotions = []
+    #
+    #     for description in descriptions:
+    #         # Truncate the description if it exceeds the maximum token limit
+    #         truncated_description = self._truncate_text(description, tokenizer=self.go_emotions_classifier.tokenizer)
+    #
+    #         # Perform emotion analysis on the truncated description
+    #         try:
+    #             result = self.go_emotions_classifier(truncated_description)
+    #             emotions.extend([res["label"] for res in result if res["score"] > 0.5])
+    #         except Exception as e:
+    #             self.logger.error(f"Error analyzing description with GoEmotions: {e}")
+    #             continue
+    #
+    #     # Deduplicate emotions
+    #     unique_emotions = list(set(emotions))
+    #
+    #     # Remove 'Neutral' if other emotions are present
+    #     if "neutral" in unique_emotions and len(unique_emotions) > 1:
+    #         unique_emotions.remove("neutral")
+    #
+    #     return unique_emotions
 
     @staticmethod
     def _truncate_text(text: str, tokenizer, max_length: int = 512) -> str:

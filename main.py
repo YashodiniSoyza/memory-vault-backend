@@ -1,15 +1,19 @@
 import importlib
 import os
 
+import firebase_admin
+import flask
+import jwt
 from bson import ObjectId
 from dotenv import load_dotenv
+from firebase_admin import auth, credentials
 from flask import Blueprint, Flask
 from flask.json.provider import DefaultJSONProvider
 from flask_cors import CORS
 
 from constant import EnvKeys
 from helper.logger import Logger
-from model import EnvironmentProfile
+from model import EnvironmentProfile, HttpStatus
 
 load_dotenv()
 
@@ -18,6 +22,29 @@ PROFILE = os.getenv(EnvKeys.PROFILE.value, EnvironmentProfile.STAGING.value)
 app = Flask(__name__)
 CORS(app)
 logger = Logger(__name__)
+
+cred = credentials.Certificate("firebase.json")
+firebase_admin.initialize_app(cred,{
+    'storageBucket': "memory-bloom-app.firebasestorage.app"
+})
+
+
+def verify_id_token():
+    auth_header = flask.request.headers.get('Authorization')
+    if not auth_header or not auth_header.startswith("Bearer "):
+        return flask.jsonify({"error": "Unauthorized"}), HttpStatus.UNAUTHORIZED.value
+
+    id_token = auth_header.split(" ")[1]
+    try:
+        decoded_token = auth.verify_id_token(id_token)
+        flask.request.user = decoded_token
+    except (ValueError, jwt.exceptions.DecodeError):
+        return flask.jsonify({"error": "Unauthorized"}), HttpStatus.UNAUTHORIZED.value
+
+
+# @app.before_request
+# def before_request():
+#     return verify_id_token()
 
 
 class CustomJSONProvider(DefaultJSONProvider):

@@ -1,32 +1,31 @@
-from bson import ObjectId
+from typing import Optional
 
-from config import MongoCollectionConfig
+from config import FirebaseCollectionConfig
 from model import TherapyOutline
 from repository import BaseRepository
 
 
 class TherapyOutlineRepository(BaseRepository):
     def __init__(self):
-        super().__init__(MongoCollectionConfig.THERAPY_OUTLINE.value)
+        super().__init__(FirebaseCollectionConfig.THERAPY_OUTLINE.value)
 
     def save_therapy_outline(self, therapy_outline: TherapyOutline) -> str:
         return self.save(therapy_outline.model_dump(by_alias=True))
 
-    def get_therapy_outline_by_id(self, therapy_outline_id: str) -> TherapyOutline:
-        result = self.get_one_by_field("_id", ObjectId(therapy_outline_id))
+    def get_therapy_outline_by_id(self, therapy_outline_id: str) -> Optional[TherapyOutline]:
+        result = self.get_by_id(therapy_outline_id)
         if result:
             return TherapyOutline(**result)
-        else:
-            return None
+        return None
 
     def update_therapy_outline_by_id(self, therapy_outline_id: str, therapy_outline: TherapyOutline) -> int:
         updated_data = therapy_outline.model_dump(by_alias=True)
-        updated_data.pop("_id")
-        return self.update({"_id": ObjectId(therapy_outline_id)}, updated_data)
+        updated_data.pop("id", None)
+        self.update(therapy_outline_id, updated_data)
+        return 1
 
-    def get_therapy_outline_by_memory_id(self, memory_id: str) -> TherapyOutline:
-        result = self.get_one_by_field("memory_id", memory_id)
+    def get_therapy_outline_by_memory_id(self, memory_id: str) -> Optional[TherapyOutline]:
+        result = self.get_by_field("memoryId", memory_id)
         if result:
-            return TherapyOutline(**result)
-        else:
-            return None
+            return TherapyOutline(**result[0])
+        return None

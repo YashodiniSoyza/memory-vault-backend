@@ -10,7 +10,7 @@ def post_process_analysis():
 
             memory = kwargs.get("memory") or (args[1] if len(args) > 1 else None)
 
-            patient_id = getattr(memory, "patient_id", None) if memory else None
+            patient_id = getattr(memory, "patientId", None) if memory else None
 
             if patient_id:
                 thread = threading.Thread(

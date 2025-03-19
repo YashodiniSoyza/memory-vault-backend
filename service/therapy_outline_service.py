@@ -1,12 +1,14 @@
 import os
+from typing import List, Optional
 
 from dotenv import load_dotenv
 
 from constant import EnvKeys
 from helper import Logger
+from model.user import User
 from repository import TherapyOutlineRepository
-from service import MemoryService, PatientService
-from model import TherapyOutline, Step
+from service import MemoryService
+from model import TherapyOutline, Step, Memory
 from openai import OpenAI
 
 load_dotenv()
@@ -14,29 +16,50 @@ load_dotenv()
 
 class TherapyOutlineService:
     def __init__(self):
+        from service import UserService
+
+        self.user_service = UserService()
         self.memory_service = MemoryService()
-        self.patient_service = PatientService()
         self.therapy_outline_repository = TherapyOutlineRepository()
         self.openai = OpenAI(
             api_key=os.getenv(EnvKeys.OPENAI_API_KEY.value),
         )
         self.logger = Logger(__name__)
 
-    def get_therapy_outline_by_memory_id(self, memory_id: str) -> TherapyOutline:
+    def get_therapy_outline_by_memory_id(self, memory_id: str) -> Optional[TherapyOutline]:
         return self.therapy_outline_repository.get_therapy_outline_by_memory_id(memory_id)
 
-    def generate_and_save_therapy_outline(self, memory_id: str) -> str:
-        self.logger.info("Generating therapy outline for memory: %s", memory_id)
-        # Fetch memory details
-        memory = self.memory_service.get_memory_by_id(memory_id)
-        patient = self.patient_service.get_patient_by_id(memory.patient_id)
+    def get_therapy_outline_by_id(self, therapy_id: str) -> TherapyOutline:
+        return self.therapy_outline_repository.get_therapy_outline_by_id(therapy_id)
 
-        if not memory:
-            raise ValueError(f"No memory found with ID: {memory_id}")
+    def save_therapy_outline(self, patient_id: str, memory_id: str):
+        therapy_outline = TherapyOutline(
+            patientId=patient_id,
+            memoryId=memory_id,
+            status="pending",
+            steps=[]
+        )
+        return self.therapy_outline_repository.save_therapy_outline(therapy_outline)
 
-        # Prepare input data for OpenAI
+    def delete_existing_therapy_outline(self, memory_id: str):
+        therapy_outline = self.get_therapy_outline_by_memory_id(memory_id)
+        if therapy_outline:
+            self.therapy_outline_repository.delete(therapy_outline.id)
+
+    def update_therapy_outline(self, therapy_id: str, patient_id: str, memory_id: str, status: str, steps: List[Step] = None):
+        therapy_outline = TherapyOutline(
+            patientId=patient_id,
+            memoryId=memory_id,
+            status=status,
+            steps=steps
+        )
+        self.therapy_outline_repository.update_therapy_outline_by_id(therapy_id, therapy_outline)
+
+    def generate_and_save_therapy_outline(self, memory: Memory, patient: User, therapy_id: str):
+        self.logger.info("Generating therapy outline for memory: %s", memory.id)
+
         input_data = {
-            "memory_id": memory_id,
+            "memory_id": memory.id,
             "memory_details": memory.model_dump(by_alias=True),
             "patient_details": patient.model_dump(by_alias=True)
         }
@@ -44,15 +67,15 @@ class TherapyOutlineService:
         # Generate therapy outline using OpenAI
         outline_json = self._generate_therapy_outline(input_data)
 
-        # Save the generated outline
         therapy_outline = TherapyOutline(
-            patient_id=memory.patient_id,
-            memory_id=memory_id,
+            patientId=memory.patientId,
+            memoryId=memory.id,
+            status="outlined",
             steps=[Step(**step) for step in outline_json["steps"]]
         )
 
-        self.logger.info("Saving therapy outline for memory: %s", memory_id)
-        return self.therapy_outline_repository.save_therapy_outline(therapy_outline)
+        self.logger.info("Saving therapy outline for memory: %s", memory.id)
+        return self.therapy_outline_repository.update_therapy_outline_by_id(therapy_id, therapy_outline)
 
     def _generate_therapy_outline(self, input_data: dict) -> dict:
         prompt = self._construct_therapy_outline_prompt(input_data)
@@ -93,15 +116,15 @@ class TherapyOutlineService:
         Generate a therapy outline in the following JSON format:
 
         {{
-          "patient_id": "string",
-          "memory_id": "string",
+          "patientId": "string",
+          "memoryId": "string",
           "steps": [
             {{
               "step": "int",
               "description": "string",
               "guide": ["string", "..."],
-              "type": "string (INTRODUCTION, NORMAL, CONCLUSION)",
-              "media_urls": ["string", "..."],
+              "type": "string (introduction, normal, conclusion)",
+              "mediaUrls": ["string", "..."],
               "script": {{
                 "voice": "string (alloy, echo, fable, onyx, nova, shimmer)",
                 "text": "string"
@@ -137,7 +160,3 @@ class TherapyOutlineService:
         except json.JSONDecodeError as e:
             raise ValueError(f"Invalid JSON output from OpenAI: {e}")
 
-
-# if __name__ == '__main__':
-#     service = TherapyOutlineService()
-#     print(service.generate_and_save_therapy_outline("6750373dae22fe6413d7e324"))

@@ -1,4 +1,4 @@
 from .database_config import db
-from .mongo_collection_config import MongoCollectionConfig
+from .firebase_collection_config import FirebaseCollectionConfig
 
-__all__ = ["db", "MongoCollectionConfig"]
+__all__ = ["db", "FirebaseCollectionConfig"]

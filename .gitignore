@@ -56,3 +56,6 @@ Thumbs.db
 
 # Virtual environment dir
 .venv/
+
+# Firebase
+firebase.json
