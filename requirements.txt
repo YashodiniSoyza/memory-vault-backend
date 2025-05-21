@@ -21,5 +21,3 @@ transformers~=4.46.3
 spacy~=3.8.2
 openai~=1.56.1
 firebase-admin
-flask_cors
-firebase-admin
