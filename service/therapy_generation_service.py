@@ -26,7 +26,6 @@ class TherapyGenerationService:
             if not user:
                 raise ValueError(f"No user found with ID: {memory.patientId}")
 
-            self.therapy_outline_service.delete_existing_therapy_outline(memory_id)
             therapy_id = self.therapy_outline_service.save_therapy_outline(user.uid, memory_id)
 
             thread = Thread(target=self.start_therapy_generation, args=(user, memory, therapy_id),
