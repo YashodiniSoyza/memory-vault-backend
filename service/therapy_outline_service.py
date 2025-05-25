@@ -141,12 +141,16 @@ class TherapyOutlineService:
 
         Requirements:
         - Use the patient details and memory details to generate personalized steps and guidance.
+        - Each media item should be associated with at least one step. Some steps may include multiple media items.
+        - The number of steps should equal or greater than the number of media files.
         - Include associated media URLs for each step where applicable.
-        - Follow a logical structure: introduction, main session, conclusion.
+        - Follow a logical structure: introduction, main sessions, conclusion.
         - Provide guidance points for each step in the `guide` field.
         - Each step should include a script with:
           - A calm, relaxing, and therapist-like tone.
           - Simple and empathetic language to guide reflective thinking and encourage memories.
+          - Minimize the questioning of the patient. And say more about the given media. and then ask some questions.
+          - We need this script to have at least 20-30 seconds of content.
         - Choose one consistent voice for all steps from the following options: alloy, echo, fable, onyx, nova, shimmer.
         - Ensure the JSON format matches the provided structure.
         - Provide the output as a valid JSON object without any extra formatting or code block markers.

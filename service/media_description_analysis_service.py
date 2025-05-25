@@ -1,8 +1,9 @@
 from collections import Counter
 
+from transformers import pipeline
+
 from service import MemoryService
 from helper import Logger
-from transformers import pipeline
 from typing import List
 from model import Memory
 import spacy
